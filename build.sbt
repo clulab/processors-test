@@ -15,7 +15,8 @@ libraryDependencies ++= {
 		"org.scalatest" %% "scalatest" % "2.2.4" % "test",
     	"org.clulab" %% "processors-main" % procVer,
     	"org.clulab" %% "processors-corenlp" % procVer,
-    	"org.clulab" %% "processors-models" % procVer,
+    	"org.clulab" %% "processors-modelsmain" % procVer,
+    	"org.clulab" %% "processors-modelscorenlp" % procVer,
     	"org.clulab" %% "processors-odin" % procVer
 	)
 }
