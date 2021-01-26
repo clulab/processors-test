@@ -3,8 +3,8 @@ package org.clulab.processors
 import java.io.{BufferedReader, InputStreamReader}
 
 import org.clulab.processors.clu.CluProcessor
-import org.clulab.processors.clu.syntax.EvaluateMalt
 import org.scalatest.{FlatSpec, Matchers}
+import org.clulab.dynet.Utils
 
 /**
   * Integration test for the Clu parser
@@ -12,15 +12,23 @@ import org.scalatest.{FlatSpec, Matchers}
   * Date: 7/26/17
   */
 class ProcessorsTest extends FlatSpec with Matchers {
-  val proc = new CluProcessor
+  val proc = {
+    Utils.initializeDyNet()
+    new CluProcessor // or new FastNLPProcessor()
+  }
 
-  "CluProcessor" should "parse WSJ with an accuracy over 87%" in {
-    val model = proc.depParser
-    val stream = getClass.getClassLoader.getResourceAsStream("org/clulab/processors/wsj_test.conllx")
-    val reader = new BufferedReader(new InputStreamReader(stream))
-    val (las, uas) = EvaluateMalt.evaluate(model, reader)
-    println(s"WSJ performance: $las, $uas")
-    reader.close()
-    (las > 0.87) should be (true)
+  "CluProcessor" should "parse text correctly" in {
+    val sent = "John likes cake that contains chocolate."
+    val doc = proc.annotate(sent)
+
+    println(s"Basic universal dependencies for sentence: $sent")
+    println(doc.sentences.head.universalBasicDependencies.get)
+
+    doc.sentences.head.universalBasicDependencies.get.hasEdge(1, 0, "nsubj") should be(true)
+    doc.sentences.head.universalBasicDependencies.get.hasEdge(1, 2, "dobj") should be(true)
+    doc.sentences.head.universalBasicDependencies.get.hasEdge(2, 4, "acl:relcl") should be(true)
+    doc.sentences.head.universalBasicDependencies.get.hasEdge(4, 3, "nsubj") should be(true)
+    doc.sentences.head.universalBasicDependencies.get.hasEdge(4, 5, "dobj") should be(true)
+    println("Parsing is fine.")
   }
 }
